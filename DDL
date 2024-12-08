@@ -1,1 +1,40 @@
+CREATE DATABASE end_work;
 
+-- СОЗДАЕМ РЕЛЯЦИОННУЮ БАЗУ ДАННЫХ
+
+-- Таблица для пользователей
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    registration_date DATE NOT NULL,
+    birth_datetime TIMESTAMP NOT NULL
+);
+
+-- Таблица для категорий прогнозов
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+-- Таблица для прогнозов
+CREATE TABLE Forecasts (
+    forecast_id INT PRIMARY KEY,
+    category_id INT,
+    forecast_type VARCHAR(255) NOT NULL,
+    subscription_price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id)
+);
+
+-- Таблица для подписок
+CREATE TABLE Subscriptions (
+    subscription_id INT PRIMARY KEY,
+    user_id INT,
+    forecast_id INT,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    duration_months INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (forecast_id) REFERENCES Forecasts(forecast_id),
+    CHECK (start_date <= end_date)
+);
