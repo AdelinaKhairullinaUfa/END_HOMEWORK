@@ -1,1 +1,41 @@
+-- РЕАЛИЗУЕМ ЗАПРОСЫ
+-- Задание 3 SQL-запрос, рассчитывающий суммы оплат от каждого пользователя за текущий календарный год.
+SELECT u.email AS userlogin, 
+       SUM(f.subscription_price * s.duration_months) AS total_payment
+FROM Users u
+JOIN Subscriptions s ON u.user_id = s.user_id
+JOIN Forecasts f ON s.forecast_id = f.forecast_id
+WHERE EXTRACT(YEAR FROM s.start_date) = 2024
+GROUP BY u.email;
+-- Задание 4 SQL-запрос, который найдет все уникальные пары пользователей, которые оба были подписаны на одинаковый вид прогноза в некотором месяце.
+SELECT DISTINCT 
+    LEAST(u1.email, u2.email) AS userlogin1,
+    GREATEST(u1.email, u2.email) AS userlogin2
+FROM Subscriptions s1
+JOIN Subscriptions s2 ON s1.forecast_id = s2.forecast_id
+JOIN Users u1 ON s1.user_id = u1.user_id
+JOIN Users u2 ON s2.user_id = u2.user_id
+WHERE u1.user_id < u2.user_id
+AND EXTRACT(MONTH FROM s1.start_date) = EXTRACT(MONTH FROM s2.start_date)
+AND EXTRACT(YEAR FROM s1.start_date) = EXTRACT(YEAR FROM s2.start_date);
+-- Задания 5 SQL-запрос, который найдет все пары пользователей, которые оба были подписаны на одинаковый вид прогноза в двух или больше месяцах
 
+SELECT DISTINCT 
+    LEAST(u1.email, u2.email) AS userlogin1,
+    GREATEST(u1.email, u2.email) AS userlogin2
+FROM Subscriptions s1
+JOIN Subscriptions s2 ON s1.forecast_id = s2.forecast_id
+JOIN Users u1 ON s1.user_id = u1.user_id
+JOIN Users u2 ON s2.user_id = u2.user_id
+WHERE u1.user_id < u2.user_id
+AND EXTRACT(YEAR FROM s1.start_date) = EXTRACT(YEAR FROM s2.start_date)
+GROUP BY u1.user_id, u2.user_id, s1.forecast_id
+HAVING COUNT(DISTINCT EXTRACT(MONTH FROM s1.start_date)) >= 2;
+
+
+-- Задания 6 Написать SQL-запрос, который найдет подписки, нарушающие ограничения на их даты.
+
+SELECT s1.subscription_id, s2.subscription_id
+FROM Subscriptions s1
+JOIN Subscriptions s2 ON s1.forecast_id = s2.forecast_id
+WHERE s1.start_date > s1.end_date;
